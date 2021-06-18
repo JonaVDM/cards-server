@@ -57,7 +57,7 @@ func New(size int) Deck {
 		cards = append(cards, Card{"red", "", true})
 	}
 
-	return FactoryDeck{
+	return &FactoryDeck{
 		Cards: cards,
 	}
 }

@@ -5,7 +5,7 @@ type Action struct {
 	Data int
 }
 
-func (d FactoryDeck) Play(card Card) Action {
+func (d *FactoryDeck) Play(card Card) Action {
 	d.Discarded = append(d.Discarded, card)
 
 	if card.Joker {
