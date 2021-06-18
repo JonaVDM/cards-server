@@ -1,4 +1,4 @@
-module github.com/jonavdm/cards-core
+module github.com/jonavdm/cards-server
 
 go 1.16
 
