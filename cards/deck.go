@@ -1,4 +1,4 @@
-package core
+package cards
 
 type Card struct {
 	Suit  string
@@ -8,10 +8,14 @@ type Card struct {
 
 type Deck interface {
 	Shuffle()
+
+	Play(card Card) Action
+	Take() Card
 }
 
 type FactoryDeck struct {
-	Cards []Card
+	Cards     []Card
+	Discarded []Card
 }
 
 func New(size int) Deck {
