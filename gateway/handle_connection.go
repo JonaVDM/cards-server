@@ -4,13 +4,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 func (a *App) handleConnection() http.HandlerFunc {
 	h := newHub()
 	go h.run()
 
-	fmt.Println("Started the ws")
+	var upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
 	return func(rw http.ResponseWriter, r *http.Request) {
 		fmt.Println("connection incomming")
