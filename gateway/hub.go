@@ -1,6 +1,6 @@
 package gateway
 
-type hub struct {
+type Hub struct {
 	// Registered clients.
 	clients map[*Client]bool
 
@@ -14,8 +14,8 @@ type hub struct {
 	unregister chan *Client
 }
 
-func newHub() *hub {
-	return &hub{
+func newHub() *Hub {
+	return &Hub{
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
@@ -23,7 +23,7 @@ func newHub() *hub {
 	}
 }
 
-func (h *hub) run() {
+func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
