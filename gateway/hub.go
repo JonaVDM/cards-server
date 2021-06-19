@@ -1,16 +1,8 @@
 package gateway
 
 import (
-	"github.com/gorilla/websocket"
 	"github.com/jonavdm/cards-server/utils"
 )
-
-type Player struct {
-	Name       string
-	Connection *websocket.Conn
-	Send       chan []byte
-	Match      *Match
-}
 
 type Match struct {
 	Players   []Player

@@ -3,9 +3,17 @@ package gateway
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+)
+
+const (
+	writeWait      = 10 * time.Second
+	pongWait       = 60 * time.Second
+	pingPeriod     = (pongWait * 9) / 10
+	maxMessageSize = 512
 )
 
 type App struct {
@@ -45,6 +53,9 @@ func (a *App) handleCreate() http.HandlerFunc {
 			Send:       make(chan []byte),
 			Match:      &Match{},
 		}
+
+		go p.Reader()
+		go p.Writer()
 
 		a.hub.Create <- p
 	}
