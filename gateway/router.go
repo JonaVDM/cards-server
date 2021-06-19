@@ -9,38 +9,47 @@ import (
 )
 
 type App struct {
-	Router *mux.Router
+	Router   *mux.Router
+	hub      *Hub
+	upgrader websocket.Upgrader
 }
 
 func (a *App) Init() {
-	a.Router.HandleFunc("/new", a.handleConnection())
-	a.Router.HandleFunc("/random", a.handleConnection())
-	a.Router.HandleFunc("/join/{code}", a.handleConnection())
-}
-
-func (a *App) handleConnection() http.HandlerFunc {
-	hub := newHub()
-	go hub.run()
-
-	var upgrader = websocket.Upgrader{
+	a.upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
+	a.upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
-	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+	a.hub = &Hub{
+		Matches: make(map[string]*Match),
+		Create:  make(chan Player),
+	}
+	go a.hub.run()
 
+	a.Router.HandleFunc("/create", a.handleCreate())
+	a.Router.HandleFunc("/join/{code}", a.handleJoin())
+}
+
+func (a *App) handleCreate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// code := mux.Vars(r)
-
-		conn, err := upgrader.Upgrade(w, r, nil)
+		conn, err := a.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Println(err)
 			return
 		}
-		client := &Client{hub, conn, make(chan []byte, 256)}
-		client.hub.register <- client
 
-		go client.writePump()
-		go client.readPump()
+		p := Player{
+			Name:       "Bubble Head",
+			Connection: conn,
+			Send:       make(chan []byte),
+			Match:      &Match{},
+		}
+
+		a.hub.Create <- p
 	}
+}
+
+func (a *App) handleJoin() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {}
 }

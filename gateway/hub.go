@@ -1,47 +1,44 @@
 package gateway
 
-type Hub struct {
-	// Registered clients.
-	clients map[*Client]bool
+import (
+	"github.com/gorilla/websocket"
+	"github.com/jonavdm/cards-server/utils"
+)
 
-	// Inbound messages from the clients.
-	broadcast chan []byte
-
-	// Register requests from the clients.
-	register chan *Client
-
-	// Unregister requests from clients.
-	unregister chan *Client
+type Player struct {
+	Name       string
+	Connection *websocket.Conn
+	Send       chan []byte
+	Match      *Match
 }
 
-func newHub() *Hub {
-	return &Hub{
-		broadcast:  make(chan []byte),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
-	}
+type Match struct {
+	Players   []Player
+	Join      chan string
+	Broadcast chan []byte
+}
+
+type Hub struct {
+	Matches map[string]*Match
+	Create  chan Player
 }
 
 func (h *Hub) run() {
 	for {
-		select {
-		case client := <-h.register:
-			h.clients[client] = true
-		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
-				close(client.send)
-			}
-		case message := <-h.broadcast:
-			for client := range h.clients {
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(h.clients, client)
-				}
-			}
+		p := <-h.Create
+
+		c := utils.RandomString(6)
+		m := &Match{
+			Players:   make([]Player, 0),
+			Join:      make(chan string),
+			Broadcast: make(chan []byte),
 		}
+
+		p.Match = m
+		m.Players = append(m.Players, p)
+
+		h.Matches[c] = m
+
+		p.Send <- []byte(c)
 	}
 }
