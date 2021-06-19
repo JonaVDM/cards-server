@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/jonavdm/cards-server/gateway"
 	"github.com/jonavdm/cards-server/server"
 )
 
@@ -16,12 +17,16 @@ func main() {
 
 func run() error {
 	router := mux.NewRouter().StrictSlash(false)
-	srvRouter := router.PathPrefix("/api").Subrouter()
 
 	srv := server.App{
-		Router: srvRouter,
+		Router: router.PathPrefix("/api").Subrouter(),
 	}
 	srv.Init()
+
+	gw := gateway.App{
+		Router: router.PathPrefix("/gw").Subrouter(),
+	}
+	gw.Init()
 
 	s := http.Server{
 		Addr:    ":3000",

@@ -1,4 +1,4 @@
-package server
+package gateway
 
 import "github.com/gorilla/mux"
 
@@ -7,5 +7,5 @@ type App struct {
 }
 
 func (a *App) Init() {
-	a.Router.HandleFunc("/", a.handlePing())
+	a.Router.HandleFunc("", a.handleConnection())
 }
