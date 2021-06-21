@@ -23,8 +23,7 @@ func (m *Match) run() {
 		p := <-m.Join
 
 		m.Players = append(m.Players, p)
-		// m.Broadcast <- []byte(p.Name + " Has joined the match")
-		m.Players[0].Send <- []byte(p.Name + " has joined the match")
+		m.Broadcast <- []byte(p.Name + " Has joined the match")
 
 		if len(m.Players) == 4 {
 			m.Broadcast <- []byte("4 Player are now in the match")
