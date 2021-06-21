@@ -51,7 +51,6 @@ func (a *App) handleCreate() http.HandlerFunc {
 			Name:       "Bubble Head",
 			Connection: conn,
 			Send:       make(chan []byte),
-			Match:      &Match{},
 		}
 
 		go p.Reader()
@@ -62,5 +61,24 @@ func (a *App) handleCreate() http.HandlerFunc {
 }
 
 func (a *App) handleJoin() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {}
+	return func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+
+		conn, err := a.upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		p := Player{
+			Name:       "Pizza",
+			Connection: conn,
+			Send:       make(chan []byte),
+		}
+
+		go p.Reader()
+		go p.Writer()
+
+		a.hub.Matches[params["code"]].Join <- p
+	}
 }

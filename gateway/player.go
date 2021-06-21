@@ -40,7 +40,6 @@ func (p *Player) Reader() {
 func (p *Player) Writer() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		log.Print("Closing connection")
 		ticker.Stop()
 		p.Connection.Close()
 	}()
@@ -54,12 +53,10 @@ func (p *Player) Writer() {
 			if err != nil {
 				return
 			}
-			w.Write(msg)
 
-			l := len(p.Send)
-			for i := 0; i < l; i++ {
-				w.Write([]byte{'\n'})
-				w.Write(<-p.Send)
+			if _, err := w.Write(msg); err != nil {
+				log.Print(err)
+				return
 			}
 
 			if err := w.Close(); err != nil {
