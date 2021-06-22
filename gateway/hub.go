@@ -15,13 +15,11 @@ func (h *Hub) run() {
 
 		c := utils.RandomString(3)
 		m := &Match{
-			Players:   make([]Player, 0),
-			Join:      make(chan Player),
-			Broadcast: make(chan []byte),
+			Players: make([]Player, 0),
+			Join:    make(chan Player),
 		}
 
 		go m.run()
-		go m.broadCaster()
 
 		p.Match = m
 		p.Send <- []byte(c)
