@@ -1,4 +1,4 @@
-package gateway
+package game
 
 type Match struct {
 	Players []Player

@@ -1,10 +1,17 @@
-package gateway
+package game
 
 import (
 	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
+)
+
+const (
+	writeWait      = 10 * time.Second
+	pongWait       = 60 * time.Second
+	pingPeriod     = (pongWait * 9) / 10
+	maxMessageSize = 512
 )
 
 type Player struct {
@@ -16,7 +23,6 @@ type Player struct {
 
 func (p *Player) Reader() {
 	defer func() {
-		// A player has disconnected
 		p.Connection.Close()
 		p.Match.Leave <- *p
 	}()

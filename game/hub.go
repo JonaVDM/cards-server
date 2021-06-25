@@ -1,4 +1,4 @@
-package gateway
+package game
 
 import (
 	"github.com/jonavdm/cards-server/utils"
@@ -9,7 +9,7 @@ type Hub struct {
 	Create  chan Player
 }
 
-func (h *Hub) run() {
+func (h *Hub) Run() {
 	for {
 		p := <-h.Create
 

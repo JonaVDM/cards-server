@@ -3,22 +3,15 @@ package gateway
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-)
-
-const (
-	writeWait      = 10 * time.Second
-	pongWait       = 60 * time.Second
-	pingPeriod     = (pongWait * 9) / 10
-	maxMessageSize = 512
+	"github.com/jonavdm/cards-server/game"
 )
 
 type App struct {
 	Router   *mux.Router
-	hub      *Hub
+	hub      *game.Hub
 	upgrader websocket.Upgrader
 }
 
@@ -29,11 +22,11 @@ func (a *App) Init() {
 	}
 	a.upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
-	a.hub = &Hub{
-		Matches: make(map[string]*Match),
-		Create:  make(chan Player),
+	a.hub = &game.Hub{
+		Matches: make(map[string]*game.Match),
+		Create:  make(chan game.Player),
 	}
-	go a.hub.run()
+	go a.hub.Run()
 
 	a.Router.HandleFunc("/create", a.handleCreate())
 	a.Router.HandleFunc("/join/{code}", a.handleJoin())
@@ -47,7 +40,7 @@ func (a *App) handleCreate() http.HandlerFunc {
 			return
 		}
 
-		p := Player{
+		p := game.Player{
 			Name:       "Bubble Head",
 			Connection: conn,
 			Send:       make(chan []byte),
@@ -77,7 +70,7 @@ func (a *App) handleJoin() http.HandlerFunc {
 			return
 		}
 
-		p := Player{
+		p := game.Player{
 			Name:       "Pizza",
 			Connection: conn,
 			Send:       make(chan []byte),
