@@ -64,9 +64,16 @@ func (a *App) handleJoin() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := mux.Vars(r)
 
+		match, ok := a.hub.Matches[params["code"]]
+		if !ok {
+			w.Write([]byte("match not found"))
+			return
+		}
+
 		conn, err := a.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Println(err)
+			w.Write([]byte("Error while upgrading"))
 			return
 		}
 
@@ -74,11 +81,12 @@ func (a *App) handleJoin() http.HandlerFunc {
 			Name:       "Pizza",
 			Connection: conn,
 			Send:       make(chan []byte),
+			Match:      match,
 		}
 
 		go p.Reader()
 		go p.Writer()
 
-		a.hub.Matches[params["code"]].Join <- p
+		match.Join <- p
 	}
 }

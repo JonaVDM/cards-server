@@ -16,7 +16,9 @@ type Player struct {
 
 func (p *Player) Reader() {
 	defer func() {
+		// A player has disconnected
 		p.Connection.Close()
+		p.Match.Leave <- *p
 	}()
 
 	p.Connection.SetReadLimit(maxMessageSize)

@@ -17,6 +17,7 @@ func (h *Hub) run() {
 		m := &Match{
 			Players: make([]Player, 0),
 			Join:    make(chan Player),
+			Leave:   make(chan Player),
 		}
 
 		go m.run()
