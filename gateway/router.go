@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/jonavdm/cards-server/game"
@@ -24,7 +25,7 @@ func (a *App) Init() {
 
 	a.hub = &game.Hub{
 		Matches: make(map[string]*game.Match),
-		Create:  make(chan game.Player),
+		Create:  make(chan *game.Player),
 	}
 	go a.hub.Run()
 
@@ -41,6 +42,7 @@ func (a *App) handleCreate() http.HandlerFunc {
 		}
 
 		p := game.Player{
+			ID:         uuid.NewString(),
 			Name:       "Bubble Head",
 			Connection: conn,
 			Send:       make(chan []byte),
@@ -49,7 +51,7 @@ func (a *App) handleCreate() http.HandlerFunc {
 		go p.Reader()
 		go p.Writer()
 
-		a.hub.Create <- p
+		a.hub.Create <- &p
 	}
 }
 
@@ -71,6 +73,7 @@ func (a *App) handleJoin() http.HandlerFunc {
 		}
 
 		p := game.Player{
+			ID:         uuid.NewString(),
 			Name:       "Pizza",
 			Connection: conn,
 			Send:       make(chan []byte),

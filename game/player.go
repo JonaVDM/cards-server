@@ -15,6 +15,7 @@ const (
 )
 
 type Player struct {
+	ID         string
 	Name       string
 	Connection *websocket.Conn
 	Send       chan []byte
@@ -23,8 +24,8 @@ type Player struct {
 
 func (p *Player) Reader() {
 	defer func() {
-		p.Connection.Close()
 		p.Match.Leave <- *p
+		p.Connection.Close()
 	}()
 
 	p.Connection.SetReadLimit(maxMessageSize)

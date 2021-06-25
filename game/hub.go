@@ -6,16 +6,16 @@ import (
 
 type Hub struct {
 	Matches map[string]*Match
-	Create  chan Player
+	Create  chan *Player
 }
 
 func (h *Hub) Run() {
 	for {
 		p := <-h.Create
 
-		c := utils.RandomString(3)
+		c := utils.RandomString(5)
 		m := &Match{
-			Players: make([]Player, 0),
+			Players: make(map[string]Player),
 			Join:    make(chan Player),
 			Leave:   make(chan Player),
 		}
@@ -24,7 +24,7 @@ func (h *Hub) Run() {
 
 		p.Match = m
 		p.Send <- []byte(c)
-		m.Join <- p
+		m.Join <- *p
 		h.Matches[c] = m
 	}
 }
