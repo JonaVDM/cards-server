@@ -26,6 +26,7 @@ func (a *App) Init() {
 	a.hub = &game.Hub{
 		Matches: make(map[string]*game.Match),
 		Create:  make(chan *game.Player),
+		Close:   make(chan string),
 	}
 	go a.hub.Run()
 
