@@ -20,6 +20,7 @@ type Player struct {
 	Connection *websocket.Conn
 	Send       chan []byte
 	Match      *Match
+	IsLeader   bool
 }
 
 func (p *Player) Reader() {

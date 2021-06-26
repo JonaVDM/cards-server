@@ -46,6 +46,7 @@ func (a *App) handleCreate() http.HandlerFunc {
 			Name:       "Bubble Head",
 			Connection: conn,
 			Send:       make(chan []byte),
+			IsLeader:   true,
 		}
 
 		go p.Reader()
@@ -78,6 +79,7 @@ func (a *App) handleJoin() http.HandlerFunc {
 			Connection: conn,
 			Send:       make(chan []byte),
 			Match:      match,
+			IsLeader:   false,
 		}
 
 		go p.Reader()

@@ -1,9 +1,26 @@
 package game
 
+import (
+	"fmt"
+	"log"
+)
+
 type Match struct {
 	Players map[string]Player
 	Join    chan Player
 	Leave   chan Player
+}
+
+func (m *Match) leaderCount() int {
+	counter := 0
+
+	for _, p := range m.Players {
+		if p.IsLeader {
+			counter++
+		}
+	}
+
+	return counter
 }
 
 func (m *Match) broadcast(msg []byte) {
@@ -25,6 +42,22 @@ func (m *Match) run() {
 		case p := <-m.Leave:
 			delete(m.Players, p.ID)
 			m.broadcast([]byte(p.Name + " Has disconnected"))
+
+			if len(m.Players) == 0 {
+				log.Print("No players left, closing match (TODO)")
+
+				return
+			}
+
+			if m.leaderCount() == 0 {
+				for _, p := range m.Players {
+					p.IsLeader = true
+					m.broadcast([]byte(
+						fmt.Sprintf("%s (%s) is now the leader", p.Name, p.ID),
+					))
+					break
+				}
+			}
 		}
 	}
 }
