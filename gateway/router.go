@@ -36,6 +36,11 @@ func (a *App) Init() {
 
 func (a *App) handleCreate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		name := r.Header.Get("X-Name")
+		if name == "" {
+			w.Write([]byte("That name is not allowed"))
+		}
+
 		conn, err := a.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Println(err)
@@ -44,7 +49,7 @@ func (a *App) handleCreate() http.HandlerFunc {
 
 		p := game.Player{
 			ID:         uuid.NewString(),
-			Name:       "Bubble Head",
+			Name:       name,
 			Connection: conn,
 			Send:       make(chan []byte),
 			IsLeader:   true,
@@ -59,6 +64,11 @@ func (a *App) handleCreate() http.HandlerFunc {
 
 func (a *App) handleJoin() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		name := r.Header.Get("X-Name")
+		if name == "" {
+			w.Write([]byte("That name is not allowed"))
+		}
+
 		params := mux.Vars(r)
 
 		match, ok := a.hub.Matches[params["code"]]
@@ -76,7 +86,7 @@ func (a *App) handleJoin() http.HandlerFunc {
 
 		p := game.Player{
 			ID:         uuid.NewString(),
-			Name:       "Pizza",
+			Name:       name,
 			Connection: conn,
 			Send:       make(chan []byte),
 			Match:      match,
